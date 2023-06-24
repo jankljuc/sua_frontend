@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Payment</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        padding: 20px;
+      }
+    </style>
+    <script>
+      //get userId from local storage
+      var userId = localStorage.getItem("userId");
+      //convert userId to json
+      userId = JSON.parse(userId);
+      userId = userId._id;
+      console.log(userId);
+      //fetch user details from http://localhost:3044/users/id
+      //and populate the form. dont use ajax
+      //use fetch api
+      fetch("http://localhost:3044/users/" + userId)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          document.getElementById("userId").value = data._id;
+        });
+
+        console.log("fetching cart data")
+        console.log("user id is " + userId)
+
+        var price=0;
+
+        fetch("http://localhost:3032/carts/user/" + userId)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            console.log(data.products_id)
+            //write products_id in a loop
+            for (var i = 0; i < data.products_id.length; i++) {
+              console.log(data.products_id[i]);
+              //fetch product details from http://localhost:3032/products/id
+              //and populate the form. dont use ajax
+              //use fetch api
+              fetch("http://localhost:3000/products/" + data.products_id[i])
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log(data.price);  
+                  price=price+data.price;   
+                            
+                });
+
+            }
+          });
+
+    </script>
+  </head>
+  <body>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" onclick="back()">Back</a>
+        </nav>
+    <h2>Create Payment</h2>
+
+    <form id="paymentForm">
+      <div class="form-group">
+        <label for="userId">User ID:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="userId"
+          name="user_id"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="type">Type:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="type"
+          name="type"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="details">Details:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="details"
+          name="details"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="amount">Amount:</label>
+        <input
+          type="number"
+          class="form-control"
+          id="amount"
+          name="amount"
+          min="0"
+          step="1"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="currency">Currency:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="currency"
+          name="currency"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="paymentStatus">Payment Status:</label>
+        <input
+          type="text"
+          class="form-control"
+          id="paymentStatus"
+          name="payment_status"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Create Payment</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        function back() {
+            window.location.href = "user";
+        }
+      $(document).ready(function () {
+        // Handle form submission
+        $("#paymentForm").submit(function (event) {
+          event.preventDefault();
+
+          var formData = $(this).serializeArray();
+          console.log(formData)
+          var paymentData = {};
+          formData.forEach(function (field) {
+            paymentData[field.name] = field.value;
+          });
+
+          // Perform further processing with the payment data
+          console.log(paymentData);
+          //get cart by userId from http://localhost:3088/carts/userId
+          //after that, create a order using https://localhost:44361/order/post/order and pass userId and products_id
+          //use fetch api
+          
+
+
+          // Add your AJAX request or other logic here to handle the payment creation
+
+          // Clear the form fields
+          //$(this).trigger('reset');
+          //create payment using http://localhost:3088/payments
+          //use fetch api
+          
+          
+          var url = "http://localhost:3088/payments/user/" + userId;
+
+          fetch(url)
+            .then(response => {
+              if (response.ok) {
+                console.log("User has a payment");
+                alert("User has a payment")
+                // Do something if the user has a payment
+              } else {
+                console.log("User does not have a payment");
+                alert("User does not have a payment")
+                // Do something if the user does not have a payment
+                fetch("http://localhost:3088/payments", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(paymentData),
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log("Success:", data);
+                    alert("Payment created successfully");
+                    //get cart by userId from http://localhost:3088/carts/paymentData._id.
+                    //use fetch api
+                    window.location.href = "confirmation";
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              // Handle any errors that occurred during the request
+            });
+            return;
+          //use fetch api
+          //if user has payment, update payment using http://localhost:3088/payments/paymentId
+
+
+
+
+
+
+
+        });
+      });
+    </script>
+  </body>
+</html>

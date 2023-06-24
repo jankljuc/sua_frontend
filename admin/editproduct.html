@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Product</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 20px;
+    }
+
+    .menu {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .edit-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .edit-btn {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" onclick="back()">Back</a>
+  </nav>
+  <h2>Edit Product</h2>
+
+  <form class="edit-form">
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input type="number" class="form-control" id="price" placeholder="Enter Price">
+    </div>
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name" placeholder="Enter Name">
+    </div>
+    <div class="form-group">
+      <label for="image">Image</label>
+      <input type="text" class="form-control" id="image" placeholder="Enter Image URL">
+    </div>
+    <button type="submit" class="btn btn-primary edit-btn">Save Changes</button>
+
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script>
+    function back() {
+      window.location.href = "admin"
+    }
+
+    console.log("get product id from local storage")
+      //get product id from local storage
+    var productId = localStorage.getItem("productIdChange");
+    console.log(productId);
+    // Fetch the product details and populate the form
+    fetch(`http://localhost:3000/products/${productId}`)
+      .then(response => response.json())
+      .then(product => {
+        document.getElementById("price").value = product.price;
+        document.getElementById("name").value = product.name;
+        document.getElementById("image").value = product.image;
+      })
+      .catch(error => console.error(error));
+
+    // Submit the updated product data
+    document.querySelector(".edit-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const updatedProduct = {
+        price: document.getElementById("price").value,
+        name: document.getElementById("name").value,
+        image: document.getElementById("image").value
+      };
+
+
+
+      fetch(`http://localhost:3000/products/${productId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedProduct)
+      })
+        .then(response => {
+          if (response.ok) {
+            console.log("Product updated successfully.");
+            alert("Product updated successfully.");
+            window.location.href = "admin";
+
+          } else {
+            console.error("Failed to update product.");
+          }
+        })
+        .catch(error => console.error(error));
+    });
+  </script>
+</body>
+</html>

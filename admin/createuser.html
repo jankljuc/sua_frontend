@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create User</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 20px;
+    }
+
+    .create-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .create-btn {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" onclick="back()">Back</a>
+  </nav>
+
+  <h2>Create User</h2>
+
+  <form class="create-form">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name" placeholder="Enter Name">
+    </div>
+    <div class="form-group">
+      <label for="surname">Surname</label>
+      <input type="surname" class="form-control" id="surname" placeholder="Enter Surname">
+    </div>
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" class="form-control" id="username" placeholder="Enter Username">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="text" class="form-control" id="password" placeholder="Enter Password">
+    </div>
+    <select class="form-select" aria-label="Default select example">
+      <option selected>Pick type</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+    <button type="submit" class="btn btn-primary create-btn">Create</button>
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+  <script>
+    function back(){
+      window.location.href = "admin"
+    }
+    document.querySelector(".create-form").addEventListener("submit", function(event){
+      event.preventDefault()
+
+      var name = document.getElementById("name").value
+      var surname = document.getElementById("surname").value
+      var username = document.getElementById("username").value
+      var password = document.getElementById("password").value
+
+      // Using JavaScript
+      var selectElement = document.querySelector('.form-select');
+      var selectedValue = selectElement.value;
+
+      var type = selectedValue
+
+      //log the values
+      console.log(name)
+      console.log(surname)
+      console.log(username)
+      console.log(password)
+      console.log(type)
+
+      if(name == "" || surname == "" || username == "" || password == "" || type == ""){
+        alert("Please fill in all fields")
+        return
+      }
+
+      var user = {
+        name: name,
+        surname: surname,
+        username: username,
+        password: password,
+        type: type
+      }
+
+      fetch("http://localhost:3044/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(user)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        alert("User created successfully")
+        window.location.href = "admin"
+      })
+    })
+  </script>
+</body>
+</html>

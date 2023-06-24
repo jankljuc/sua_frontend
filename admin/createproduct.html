@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Product</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    body {
+      padding: 20px;
+    }
+
+    .create-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .create-btn {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" onclick="back()">Back</a>
+  </nav>
+
+  <h2>Create Product</h2>
+
+  <form class="create-form">
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input type="number" class="form-control" id="price" placeholder="Enter Price">
+    </div>
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" id="name" placeholder="Enter Name">
+    </div>
+    <div class="form-group">
+      <label for="image">Image</label>
+      <input type="text" class="form-control" id="image" placeholder="Enter Image URL">
+    </div>
+    <button type="submit" class="btn btn-primary create-btn">Create</button>
+  </form>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script>
+    function back(){
+      window.location.href = "admin"
+    }
+
+    // Add event listener to the form
+    document.querySelector('.create-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Get the form values
+      var price = document.querySelector('#price').value;
+      var name = document.querySelector('#name').value;
+      var image = document.querySelector('#image').value;
+
+      console.log(price, name, image)
+
+      // Create the product object
+      var product = {
+        price: price,
+        name: name,
+        image: image
+      };
+
+      // Send a POST request to add the product
+      fetch('http://localhost:3000/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product)
+      })
+      .then(function(response) {
+        if (response.ok) {
+          console.log('Product created successfully.');
+          alert("Product created successfully")
+          window.location.href = "admin"
+          // Redirect or perform any other actions upon successful product creation
+        } else {
+          console.log(response)
+          console.log('Failed to create product.');
+          alert("Product created successfully")
+          window.location.href = "admin"
+
+        }
+      })
+      .catch(function(error) {
+        console.log('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Admin Page</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+
+      .logout-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      .nav-link {
+        cursor: pointer;
+      }
+
+      h2 {
+        margin-top: 20px;
+        margin-bottom: 40px;
+      }
+
+      #addUsers,
+      #addProducts {
+        margin-bottom: 20px;
+      }
+
+      .table {
+        background-color: #fff;
+      }
+
+      th {
+        background-color: #f8f9fa;
+      }
+
+      .btn-success,
+      .btn-danger {
+        margin-right: 5px;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Initialize the Bootstrap tabs
+        $("#adminTabs a").click(function (e) {
+          e.preventDefault();
+          $(this).tab("show");
+        });
+
+        // Fetch and populate users
+        $.ajax({
+          url: "http://localhost:3044/users",
+          method: "GET",
+          success: function (users) {
+            var usersTableBody = $("#usersTableBody");
+
+            users.forEach(function (user) {
+              var row = $("<tr></tr>");
+              row.append("<td>" + user._id + "</td>");
+              row.append("<td>" + user.username + "</td>");
+              row.append("<td>" + user.password + "</td>");
+              row.append("<td>" + user.name + "</td>");
+              row.append("<td>" + user.surname + "</td>");
+              row.append(
+                "<td>" +
+                  "<button class='btn btn-success'>Edit</button> " +
+                  "<button class='btn btn-danger'>Delete</button>" +
+                  "</td>"
+              );
+              usersTableBody.append(row);
+            });
+          },
+          error: function () {
+            console.log("Failed to fetch user data.");
+          },
+        });
+
+        // Fetch and populate payments
+        $.ajax({
+          url: "http://localhost:3088/payments",
+          method: "GET",
+          success: function (payments) {
+            var paymentsTableBody = $("#paymentsTableBody");
+
+            payments.forEach(function (payment) {
+              var row = $("<tr></tr>");
+              row.append("<td>" + payment._id + "</td>");
+              row.append("<td>" + payment.user_id + "</td>");
+              row.append("<td>" + payment.type + "</td>");
+              row.append("<td>" + payment.details + "</td>");
+              row.append("<td>" + payment.amount + "</td>");
+              row.append("<td>" + payment.currency + "</td>");
+              row.append("<td>" + payment.payment_status + "</td>");
+              paymentsTableBody.append(row);
+            });
+          },
+          error: function () {
+            console.log("Failed to fetch payment data.");
+          },
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <button class="btn btn-primary logout-btn">Logout</button>
+    <h2>Welcome, Admin!</h2>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <button class="btn btn-primary" id="addUsers" onclick="addUsers()">
+            Add Users
+          </button>
+        </div>
+        <div class="col-md-6 text-right">
+          <button
+            class="btn btn-primary"
+            id="addProducts"
+            onclick="addProducts()"
+          >
+            Add Products
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ul class="nav nav-tabs" id="adminTabs">
+      <li class="nav-item">
+        <a class="nav-link active" id="usersTab" data-toggle="tab" href="#users"
+          >Users</a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="productsTab" data-toggle="tab" href="#products"
+          >Products</a
+        >
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="ordersTab" data-toggle="tab" href="#orders"
+          >Orders</a
+        >
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="users">
+        <h3>Users Tab Content</h3>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Users will be dynamically added here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="products">
+        <h3>Products Tab Content</h3>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <!-- Products will be dynamically added here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="orders">
+        <h3>Orders Tab Content</h3>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>UserId</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Products will be dynamically added here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //add event listener for edit product button
+      $("#productsTableBody").on("click", ".btn-success", function () {
+        console.log("Edit button clicked for products");
+        // Get the row that contains this button (this is the button that was clicked)
+        var row = $(this).closest("tr");
+        // Get the product ID from the first column of the row
+        var productId = row.find("td:first").text();
+        console.log(productId);
+        // Save the product ID in the local storage so that we can access it in the edit product page later on.
+        localStorage.setItem("productIdChange", productId);
+        // Redirect to the edit product page
+        window.location.href = "editproduct";
+      });
+      document
+        .querySelector(".logout-btn")
+        .addEventListener("click", function () {
+          window.location.href = "../login";
+        });
+
+      // Add event listeners for edit and delete buttons
+      $("#usersTableBody").on("click", ".btn-success", function () {
+        console.log("Edit button clicked for users");
+        // Get the row that contains this button (this is the button that was clicked)
+        var row = $(this).closest("tr");
+        // Get the user ID from the first column of the row
+        var userId = row.find("td:first").text();
+        console.log(userId);
+        // Save the user ID in the local storage so that we can access it in the edit user page later on.
+        localStorage.setItem("userIdChange", userId);
+        // Redirect to the edit user page
+        window.location.href = "edituser";
+      });
+
+      $("#usersTableBody").on("click", ".btn-danger", function () {
+        console.log("Delete button clicked");
+        // Get the row that contains this button (this is the button that was clicked)
+        var row = $(this).closest("tr");
+        // Get the user ID from the first column of the row
+        var userId = row.find("td:first").text();
+        console.log(userId);
+        // Send a DELETE request to the server
+        $.ajax({
+          url: "http://localhost:3044/users/" + userId,
+          method: "DELETE",
+          success: function () {
+            // Remove the row from the table
+            console.log("User deleted successfully.");
+            row.remove();
+          },
+          error: function () {
+            console.log("Failed to delete user.");
+          },
+        });
+      });
+
+      $(document).ready(function () {
+        // Fetch and populate products
+        $.ajax({
+          url: "http://localhost:3000/products",
+          method: "GET",
+          success: function (products) {
+            var productsTableBody = $("#productsTableBody");
+
+            products.forEach(function (product) {
+              var row = $("<tr></tr>");
+              row.append("<td>" + product._id + "</td>");
+              row.append("<td>" + product.name + "</td>");
+              row.append("<td>" + product.price + "</td>");
+              row.append(
+                "<td><img src='" +
+                  product.image +
+                  "' alt='" +
+                  product.name +
+                  "' style='width: 100px; height: 100px;' /></td>"
+              );
+
+              row.append(
+                "<td>" +
+                  "<button class='btn btn-success'>Edit</button> " +
+                  "<button class='btn btn-danger' data-product-id='" +
+                  product._id +
+                  "'>Delete</button>" +
+                  "</td>"
+              );
+              productsTableBody.append(row);
+            });
+          },
+          error: function () {
+            console.log("Failed to fetch product data.");
+          },
+        });
+
+        // Add event listener for delete buttons
+        $("#productsTableBody").on("click", ".btn-danger", function () {
+          console.log("Delete button clicked for products");
+          // Get the row that contains this button (this is the button that was clicked)
+          var row = $(this).closest("tr");
+          // Get the user ID from the first column of the row
+          var productId = row.find("td:first").text();
+          console.log(productId);
+
+          // Send a DELETE request to the server
+          $.ajax({
+            url: "http://localhost:3000/products/" + productId,
+            method: "DELETE",
+            success: function () {
+              // Remove the row from the table
+              console.log("Product deleted successfully.");
+              row.remove();
+            },
+            error: function () {
+              console.log("Failed to delete product.");
+            },
+          });
+        });
+      });
+      //fetch and populate orders
+      $(document).ready(function () {
+        $.ajax({
+          url: "https://localhost:44361/order/get/All",
+          method: "GET",
+          success: function (orders) {
+            //convert orders to json
+            orders = JSON.parse(orders);
+            console.log(orders)
+            var ordersTableBody = $("#ordersTableBody");
+
+            orders.forEach(function (order) {
+              var row = $("<tr></tr>");
+              row.append("<td>" + order._id + "</td>");
+              row.append("<td>" + order.userId + "</td>");
+
+              row.append(
+                "<td>" +
+                  "<button class='btn btn-success'>Deny</button> " +
+                  "<button class='btn btn-danger' data-order-id='" +
+                  order._id +
+                  "'>Confirm</button>" +
+                  "</td>"
+              );
+              ordersTableBody.append(row);
+            });
+          },
+          error: function () {
+            console.log("Failed to fetch order data.");
+          },
+        });
+
+
+      });
+
+      function addUsers() {
+        console.log("Add Users button clicked");
+        // Redirect to the add user page
+        window.location.href = "createuser";
+      }
+
+      function addProducts() {
+        console.log("Add Products button clicked");
+        // Redirect to the add product page
+        window.location.href = "createproduct";
+      }
+      // Add event listener for delete buttons for orders
+      $("#ordersTableBody").on("click", ".btn-danger", function () {
+        console.log("Delete button clicked for orders");
+        // Get the row that contains this button (this is the button that was clicked)
+        var row = $(this).closest("tr");
+        // Get the user ID from the first column of the row
+        var orderId = row.find("td:first").text();
+        console.log(orderId);
+
+        
+        //get order by id. that is all the info we need
+        $.ajax({
+          url: "https://localhost:44361/order/get/byID?Id=" + orderId,
+          method: "GET",
+          success: function (order) {
+            //convert order to json
+            order = JSON.parse(order);
+            console.log(order)
+
+            console.log("user id: " + order.userId)
+            //get payment by user id http://localhost:3088/payments/user/order.userId using fetch
+            fetch("http://localhost:3088/payments/user/" + order.userId)
+              .then((response) => response.json())
+              .then((payment) => {
+                console.log(payment)
+                //remove payment from db
+                fetch("http://localhost:3088/payments/" + payment[0]._id, {
+                  method: "DELETE",
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log("Payment deleted successfully.");
+                    alert("payment deleted successfully")
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+
+
+            //get cart by user id http://localhost:3032/carts/user/order.userId
+            $.ajax({
+              url: "http://localhost:3032/carts/user/" + order.userId,
+              method: "GET",
+              success: function (cart) {
+                //convert cart to json
+                console.log(cart)
+                var products=cart.products_id;
+                //remove products from db http://localhost:3000/products/product._id using fetch
+                products.forEach(function (product) {
+                  fetch("http://localhost:3000/products/" + product, {
+                    method: "DELETE",
+                  })
+                    .then((response) => response.json())
+                    .then((data) => {
+                      console.log("Product deleted successfully.");
+                      alert("product deleted successfully")
+                    })
+                    .catch((error) => {
+                      console.error("Error:", error);
+                    });
+                });
+
+                console.log(products)
+                //remove cart from db
+                $.ajax({
+                  url: "http://localhost:3032/carts/" + cart._id,
+                  method: "DELETE",
+                  success: function () {
+                    // Remove the row from the table
+                    console.log("Cart deleted successfully.");
+                    alert("cart deleted successfully")
+                    //remove order from db
+                    $.ajax({
+                      url: "https://localhost:44361/order/delete/byID?Id=" + orderId,
+                      method: "DELETE",
+                      success: function () {
+                        // Remove the row from the table
+                        console.log("Order deleted successfully.");
+                        alert("order deleted successfully")
+                        row.remove();
+                      },
+                      error: function () {
+                        console.log("Failed to delete order.");
+                      },
+                    });
+                  },
+                  error: function () {
+                    console.log("Failed to delete cart.");
+                  },
+                });
+
+              },
+              error: function () {
+                console.log("Failed to fetch cart data.");
+              },
+            });
+
+
+
+          },
+          error: function () {
+            console.log("Failed to fetch order data.");
+          },
+        });
+      });
+      //add event listener for confirm buttons for orders
+      $("#ordersTableBody").on("click", ".btn-success", function () {
+        console.log("Confirm button clicked for orders");
+        // Get the row that contains this button (this is the button that was clicked)
+        var row = $(this).closest("tr");
+        // Get the user ID from the first column of the row
+        var orderId = row.find("td:first").text();
+        console.log(orderId);
+
+        //get order by id. that is all the info we need
+        $.ajax({
+          url: "https://localhost:44361/order/get/byID?Id=" + orderId,
+          method: "GET",
+          success: function (order) {
+            //convert order to json
+            order = JSON.parse(order);
+            console.log(order)
+
+            console.log("user id: " + order.userId)
+            //get payment by user id http://localhost:3088/payments/user/order.userId using fetch
+            fetch("http://localhost:3088/payments/user/" + order.userId)
+              .then((response) => response.json())
+              .then((payment) => {
+
+                //remove payment from db
+                fetch("http://localhost:3088/payments/" + payment[0]._id, {
+                  method: "DELETE",
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    console.log("Payment deleted successfully.");
+                    alert("payment deleted successfully")
+                  })
+                  .catch((error) => {
+                    console.error("Error:", error);
+                  });
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+
+
+            //get cart by user id http://localhost:3032/carts/user/order.userId
+            $.ajax({
+              url: "http://localhost:3032/carts/user/" + order.userId,
+              method: "GET",
+              success: function (cart) {
+                //convert cart to json
+                console.log(cart)
+
+                //remove cart from db
+                $.ajax({
+                  url: "http://localhost:3032/carts/" + cart._id,
+                  method: "DELETE",
+                  success: function () {
+                    // Remove the row from the table
+                    console.log("Cart deleted successfully.");
+                    alert("cart deleted successfully")
+                    //remove order from db
+                    $.ajax({
+                      url: "https://localhost:44361/order/delete/byID?Id=" + orderId,
+                      method: "DELETE",
+                      success: function () {
+                        // Remove the row from the table
+                        console.log("Order deleted successfully.");
+                        alert("order deleted successfully")
+                        row.remove();
+                      },
+                      error: function () {
+                        console.log("Failed to delete order.");
+                      },
+                    });
+                  },
+                  error: function () {
+                    console.log("Failed to delete cart.");
+                  },
+                });
+
+              },
+              error: function () {
+                console.log("Failed to fetch cart data.");
+              },
+            });
+
+
+
+          },
+          error: function () {
+            console.log("Failed to fetch order data.");
+          },
+        });
+        
+      });
+    </script>
+  </body>
+</html>

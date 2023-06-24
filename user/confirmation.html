@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Confirmation</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .confirmation-box {
+      background-color: #c3e6cb;
+      border: 2px solid #155724;
+      padding: 20px;
+      text-align: center;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
+  <script>
+    //get user id from local storage
+    var user_id = localStorage.getItem("userId");
+    console.log(user_id);
+    //convert user id to json
+    user_id = JSON.parse(user_id);
+    user_id = user_id._id;
+    //get cart by user id from http://localhost:3032/carts/user/:id using fetch api
+    fetch("http://localhost:3032/carts/user/" + user_id)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        console.log("data.products_id")
+        console.log(data.products_id)
+        console.log("data.user_id")
+        console.log(data.user_id)
+
+        var post_order={
+          userId: data.user_id,
+          productIds: data.products_id,
+          status:"pending"
+        }
+        console.log(post_order)
+
+        fetch("https://localhost:44361/order/post/order", {
+          method: "POST",
+          headers: {
+            "accept": "text/plain",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(post_order)
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data);
+            alert("success");
+            // Handle the response data as needed
+          })
+          .catch(error => {
+            console.error("Error:", error);
+            console.log("error occured")
+            // Handle any errors that occurred during the request
+          });
+
+        
+      });
+      fetch("https://localhost:44361/order/get/byID?Id=64904e174d662adffbb1cb68")
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        alert(data)
+        // Process the retrieved data as needed
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        // Handle any errors that occurred during the request
+      });
+
+
+
+  </script>
+</head>
+<body>
+  <div class="confirmation-box">
+    <h2>Order Confirmation</h2>
+    <p id="order">Your order has been successfully created!</p>
+    <p>Thank you for your purchase.</p>
+
+    <a href="user">Back to Products</a>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>
